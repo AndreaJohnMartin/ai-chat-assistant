@@ -8,6 +8,8 @@ load_dotenv()
 app = Flask(__name__)
 
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
+print("API KEY from .env:", OPENROUTER_API_KEY)
+
 
 @app.route('/')
 def index():
