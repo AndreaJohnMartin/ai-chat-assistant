@@ -1,10 +1,13 @@
 from flask import Flask, request, jsonify, render_template
 import requests
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
-# Your OpenRouter API key here (keep it secret!)
-OPENROUTER_API_KEY = "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"  # paste your real key here
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
 
 @app.route('/')
 def index():
@@ -15,14 +18,13 @@ def chat():
     try:
         user_input = request.json['message']
 
-        # Prepare headers and data for OpenRouter
         headers = {
             "Authorization": f"Bearer {OPENROUTER_API_KEY}",
             "Content-Type": "application/json"
         }
 
         data = {
-            "model": "openai/gpt-3.5-turbo",  # you can change to other models like mistralai/mixtral-8x7b if you want
+            "model": "openai/gpt-3.5-turbo",
             "messages": [
                 {"role": "user", "content": user_input}
             ]
