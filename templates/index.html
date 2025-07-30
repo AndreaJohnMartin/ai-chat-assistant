@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Martia - AI Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Pacifico&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gradient-1: linear-gradient(to right, #EEAECA 0%, #94BBE9 100%);
+      --gradient-2: linear-gradient(135deg, #020024 0%, #090979 35%, #00D4FF 100%);
+      --gradient-3: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+      --gradient-4: linear-gradient(to right, #1a2a6c, #b21f1f, #fdbb2d);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      font-family: 'Inter', sans-serif;
+      background: var(--gradient-1);
+      color: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      transition: background 0.4s ease, color 0.3s ease;
+    }
+
+    h1 {
+      font-family: "Great Vibes";
+      font-size: 3rem;
+      margin-top: 30px;
+      margin-bottom: 10px;
+      text-align: center;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    }
+
+    h3 {
+      font-family: "Great Vibes";
+      font-size: 1rem;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      text-align: center;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+    }
+
+    .theme-picker {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .theme-button {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 2px solid white;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .theme-button:hover {
+      transform: scale(1.1);
+    }
+
+    .theme1 { background: var(--gradient-1); }
+    .theme2 { background: var(--gradient-2); }
+    .theme3 { background: var(--gradient-3); }
+    .theme4 { background: var(--gradient-4); }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      height: 70vh;
+      padding: 30px;
+      background-color: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container h2 {
+      margin-bottom: 15px;
+    }
+
+    .chat-box {
+      flex: 1;
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .bubble {
+      max-width: 80%;
+      padding: 10px 15px;
+      border-radius: 15px;
+      word-wrap: break-word;
+    }
+
+    .user {
+      background-color: #00c9a7;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 0;
+    }
+
+    .bot {
+      background-color: #eee;
+      align-self: flex-start;
+      border-bottom-left-radius: 0;
+    }
+
+    .input-row {
+      display: flex;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      outline: none;
+    }
+
+    button.send-btn {
+      margin-left: 10px;
+      padding: 12px 20px;
+      background-color: #00c9a7;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button.send-btn:hover {
+      background-color: #00a68e;
+    }
+    .feedback {
+      display: flex;
+      gap: 10px;
+      margin-top: 5px;
+      font-size: 20px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .feedback span:hover {
+      transform: scale(1.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>Welcome to Martia</h1>
+  <h3>The AI Assistant That Gets You.</h3>
+
+  <div class="theme-picker">
+    <div class="theme-button theme1" onclick="setBackground('--gradient-1')"></div>
+    <div class="theme-button theme2" onclick="setBackground('--gradient-2')"></div>
+    <div class="theme-button theme3" onclick="setBackground('--gradient-3')"></div>
+    <div class="theme-button theme4" onclick="setBackground('--gradient-4')"></div>
+  </div>
+
+  <div class="container">
+    <h2>Let's Chat!</h2>
+    <div class="chat-box" id="chatBox">
+      <div class="bubble bot">Ask something to get started!</div>
+    </div>
+    <div class="input-row">
+      <input type="text" id="message" placeholder="Ask me anything..." onkeydown="handleKey(event)" />
+      <button class="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script>
+    function setBackground(gradientVar) {
+      document.body.style.background = getComputedStyle(document.documentElement)
+        .getPropertyValue(gradientVar);
+    }
+
+    async function sendMessage() {
+      const messageInput = document.getElementById('message');
+      const chatBox = document.getElementById('chatBox');
+      const message = messageInput.value.trim();
+      if (!message) return;
+
+      // Add user's bubble
+      const userBubble = document.createElement('div');
+      userBubble.className = 'bubble user';
+      userBubble.innerText = message;
+      chatBox.appendChild(userBubble);
+      messageInput.value = '';
+
+      // Add "thinking" bubble
+      const botBubble = document.createElement('div');
+      botBubble.className = 'bubble bot';
+      botBubble.innerText = 'Thinking...';
+      chatBox.appendChild(botBubble);
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      try {
+        const res = await fetch('/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+
+        const data = await res.json();
+        botBubble.innerText = data.reply || "Sorry, I couldn't understand that.";
+
+        const feedbackDiv = document.createElement('div');
+        feedbackDiv.className = 'feedback';
+
+        const thumbsUp = document.createElement('span');
+        thumbsUp.innerHTML = '👍🏼';
+        thumbsUp.onclick = () => sendFeedback(message, data.reply, 'positive');
+
+        const thumbsDown = document.createElement('span');
+        thumbsDown.innerHTML = '👎🏼';
+        thumbsDown.onclick = () => sendFeedback(message, data.reply, 'negative');
+
+        feedbackDiv.appendChild(thumbsUp);
+        feedbackDiv.appendChild(thumbsDown);
+        chatBox.appendChild(feedbackDiv);
+
+      } catch (err) {
+        botBubble.innerText = "Error contacting assistant.";
+      }
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function handleKey(event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    }
+
+    async function sendFeedback(prompt, response, feedback) {
+      try {
+        await fetch('/feedback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, response, feedback })
+        });
+        alert("Thanks for your feedback!");
+      } catch (err) {
+        console.error("Feedback failed to send");
+      }
+    }
+  </script>
+</body>
+</html>
